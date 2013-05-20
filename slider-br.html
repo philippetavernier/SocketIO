@@ -1,0 +1,140 @@
+<!--
+http://docs.jquery.com/UI/Slider
+
+To try 
+
+if the autoreset has something to do with the reinit of the serial
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Hello World!</title>
+        <meta charset="utf-8">
+
+        <script src="http://192.168.1.21:8080/socket.io/socket.io.js"></script>
+        <!--script src="http://localhost:8080/socket.io/socket.io.js"></script-->
+        <!--script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script-->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" >
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+          <style>
+          #eq span {
+            height:120px; float:left; margin:15px
+          }
+          </style>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                var socket = io.connect('http://192.168.1.21:8080');
+                //var socket = io.connect('http://localhost:8080');
+                $("#button").click(function() {
+                    // Socket emit  ('my event' ,"chunk") 
+                    // emit to the node server
+                    socket.emit('browser button' ,"Button clicked");
+                    
+                })
+//----------------------------------------------------------------
+                $(function() {
+                    $( "#slider1" ).slider({
+                    range: "min",
+                    value: 1, //slider bug if start with '0' (goes to -1 as a value)
+                    min: 1,
+                    max: 10,
+                    orientation: "horizontal",
+                    animate: true,
+                    slide: function( event, ui ) {
+                    $( "#value" ).val( "unit :" + ui.value );
+                    //OK 
+                    //socket.emit('my event2' ,"slider");
+                    socket.emit('browser slider1' ,ui.value);
+
+                    }
+                    });
+                    //Value at the firts instance of the slider function
+                    $( "#value" ).val( "unit :" + $( "#slider1" ).slider( "value" ) );
+                });
+//--------------------------------------------------------------
+//-------------------------------------------------------
+                $(function() {
+                    $( "#slider2" ).slider({
+                    range: "min",
+                    value: 1, //slider bug if start with '0' (goes to -1 as a value)
+                    min: 1,
+                    max: 100,
+                    step: 1,
+                    //duration: "slow",
+                    orientation: "horizontal",
+                    animate: 1000,
+                    slide: function( event, ui ) {  //on slide stop to prevent overflow data
+                    var delay = function() {
+                        $( "#value" ).val( "unit :" + ui.value );
+                        //OK 
+                        //socket.emit('my event2' ,"slider");
+
+                        }
+                    setTimeout(delay, 20);
+                        socket.emit('browser slider2' ,ui.value);
+                    },
+                    stop: function( event, ui ) {  //on slide stop to prevent overflow data
+                    $( "#value" ).val( "unit :" + ui.value );
+                    //OK 
+                    //socket.emit('my event2' ,"slider");
+                    socket.emit('browser slider2' ,ui.value);
+
+                    }
+                    });
+                    //Value at the firts instance of the slider function
+                    $( "#value" ).val( "unit :" + $( "#slider2" ).slider( "value" ) );
+                });
+//---------------------------------------------------------
+    $( "#eq > span" ).each(function() {
+      // read initial values from markup and remove that
+      var value = parseInt( $( this ).text(), 10 );
+      $( this ).empty().slider({
+        value: value,
+        range: "min",
+        animate: true,
+        orientation: "vertical"
+                   // $( "#value" ).val( "unit :" + ui.value );
+                    //OK 
+                    //socket.emit('my event2' ,"slider");
+                    //socket.emit('browser slider2' ,ui.value);
+
+                
+      });
+    });
+//----------------------------------------------------------
+            })
+        </script>
+    </head>
+
+    <body>
+        <button type="button" id='button'>Send Message</button> </br>
+        <label for="value">slider value:</label>
+        <p><input type="text" id="value" style="border: 0; color: #f6931f; font-weight: bold;" />
+        </p>
+        <!--///////////////////////////////////-->
+        <p class="ui-state-default ui-corner-all ui-helper-clearfix" style="padding: 4px;">
+        <span class="ui-icon ui-icon-volume-on" style="float: left; margin: -2px 5px 0 0;"></span>
+        Master
+        </p>
+        <div id="slider1" style="width: 260px; margin: 15px;"></div>
+        <!--///////////////////////////////////-->
+        <div id="slider2" style="width: 260px; margin: 15px;"></div>
+        <!--///////////////////////////////////-->
+
+         <div id="eq">
+          <span>88</span>
+          <span>77</span>
+          <!--span>55</span>
+          <span>33</span>
+          <span>40</span>
+          <span>45</span>
+          <span>70</span-->
+        </div>
+
+    </body>
+
+</html>
